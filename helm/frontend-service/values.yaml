@@ -1,0 +1,22 @@
+replicaCount: 2
+
+image:
+  repository: frontend-service
+  tag: "local"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8002
+
+resources:
+  requests: { cpu: "100m", memory: "128Mi" }
+  limits: { cpu: "500m", memory: "256Mi" }
+
+livenessProbe:
+  httpGet: { path: /health, port: 8002 }
+  initialDelaySeconds: 10
+
+readinessProbe:
+  httpGet: { path: /health, port: 8002 }
+  initialDelaySeconds: 5

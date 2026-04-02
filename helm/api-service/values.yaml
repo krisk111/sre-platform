@@ -1,0 +1,19 @@
+replicaCount: 2
+image:
+  repository: api-service
+  tag: "local"
+  pullPolicy: IfNotPresent
+service:
+  type: ClusterIP
+  port: 8000
+resources:
+  requests: { cpu: "100m", memory: "128Mi" }
+  limits: { cpu: "500m", memory: "256Mi" }
+env:
+  WORKER_URL: "http://worker-service:8001"
+livenessProbe:
+  httpGet: { path: /health, port: 8000 }
+  initialDelaySeconds: 10
+readinessProbe:
+  httpGet: { path: /health, port: 8000 }
+  initialDelaySeconds: 5
