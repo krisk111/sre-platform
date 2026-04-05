@@ -9,23 +9,36 @@ terraform {
   required_providers { aws = { source = "hashicorp/aws", version = "~> 5.0" } }
 }
 provider "aws" { region = "us-east-1" }
- 
+
 module "vpc" {
-  source  = "../../modules/vpc"
-  project = "sre-platform"
-  env     = "dev"
-  vpc_cidr= "10.0.0.0/16"
-  azs     = ["us-east-1a","us-east-1b"]
+  source   = "../../modules/vpc"
+  project  = "sre-platform"
+  env      = "dev"
+  vpc_cidr = "10.0.0.0/16"
+  azs      = ["us-east-1a", "us-east-1b"]
 }
- 
+
 module "eks" {
   source             = "../../modules/eks"
   cluster_name       = "sre-platform-dev"
   private_subnet_ids = module.vpc.private_subnet_ids
 }
- 
+
 module "ecr" {
   source        = "../../modules/ecr"
   project       = "sre-platform"
-  service_names = ["api-service","worker-service","frontend-service"]
+  service_names = ["api-service", "worker-service", "frontend-service"]
+}
+
+module "rds" {
+  source             = "../../modules/rds"
+  project            = "sre-platform"
+  env                = "dev"
+  vpc_id             = module.vpc.vpc_id
+  vpc_cidr           = "10.0.0.0/16"
+  private_subnet_ids = module.vpc.private_subnet_ids
+
+  db_name     = "appdb"
+  db_username = "postgres"
+  db_password = var.db_password
 }
